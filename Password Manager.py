@@ -1,3 +1,35 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ----------------------------------- BEFORE STARTING THE APP, PLEASE READ THE README.md FILE FIRST!  ----------------------------------- #
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # IMPORTS
 import customtkinter as ctk
 import tkinter as tk
@@ -13,19 +45,19 @@ import threading
 import time
 import shutil
 
-eye_open_img = ctk.CTkImage(Image.open("PasswordManager\Image Files\SeePassword-Icon.png"), size=(33, 33))
-eye_closed_img = ctk.CTkImage(Image.open("PasswordManager\Image Files\Hide-Icon.png"), size=(33, 33))
+eye_open_img = ctk.CTkImage(Image.open("Image Files\SeePassword-Icon.png"), size=(33, 33))
+eye_closed_img = ctk.CTkImage(Image.open("Image Files\Hide-Icon.png"), size=(33, 33))
 
 # KEY FILES 
-KEY_FILE = "PasswordManager\Database\key.key"
-CREDENTIALS_FILE = "PasswordManager\Database\savedcredentials.txt"
+KEY_FILE = "Database\key.key"
+CREDENTIALS_FILE = "Database\savedcredentials.txt"
 
 # USER-SPECIFIC FILES
-CURRENT_USER = [None]  # Use a list for mutability in nested functions
+CURRENT_USER = [None] 
 credentials_lines = []
 
 def get_user_files(username):
-    base = "PasswordManager/Database/"
+    base = "Database/"
     return {
         'CREDENTIALS_FILE': f"{base}{username}_credentials.txt",
         'PIN_FILE': f"{base}{username}_pin.hash",
@@ -115,7 +147,6 @@ def request_pin(callback):
     else:
         prompt_to_register_pin(callback)
 
-
 # --- ENCRYPTION --- #
 def generate_key(username):
     key = Fernet.generate_key()  # Generate a unique key
@@ -157,24 +188,16 @@ def decrypt_data(encrypted_data, username):
 # Configure CTk
 ctk.set_appearance_mode("light")
 
-
-
-
-
 # Files
 CREDENTIALS_FILE = "savedcredentials.txt"
-USER_CREDENTIALS_FILE = "PasswordManager/Database/user_credentials.txt"
+USER_CREDENTIALS_FILE = "Database/user_credentials.txt"
 PIN_FILE = "pin.hash"
 KEY_FILE = "key.key"
-
-
 
 # App Window
 app = ctk.CTk()
 app.title("Password Manager")
 app.geometry("600x750")
-
-
 
 # --- Loading Dots Function ---
 def show_loading_icon(parent):
@@ -189,9 +212,6 @@ def on_button_click():
     show_loading_icon(opening_frame)
     threading.Thread(target=lambda: (time.sleep(1), show_login()), daemon=True).start()
 
-
-
-
 # ---------- PAGE FRAMES ---------- #
 login_frame = ctk.CTkFrame(app)
 register_frame = ctk.CTkFrame(app)
@@ -203,7 +223,6 @@ edit_frame = ctk.CTkFrame(app)
 opening_frame = ctk.CTkFrame(app)
 mfa_frame = ctk.CTkFrame(app)
 
-
 # Set all main frames' background color to white
 login_frame.configure(fg_color="#FFFFFF")
 register_frame.configure(fg_color="#FFFFFF")
@@ -214,7 +233,6 @@ view_frame.configure(fg_color="#FFFFFF")
 edit_frame.configure(fg_color="#FFFFFF")
 opening_frame.configure(fg_color="#FFFFFF")
 mfa_frame.configure(fg_color="#FFFFFF")
-
 
 # ---------- PAGE SWITCHING ---------- #
 def show_main():
@@ -234,7 +252,6 @@ def show_add_password():
     main_frame.pack_forget()
     add_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-
 def show_register():
     login_frame.pack_forget()
     register_frame.pack(fill="both", expand=True, padx=20, pady=20)
@@ -243,26 +260,17 @@ def back_to_login():
     register_frame.pack_forget()
     login_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-
-# ---------- NEWWWWWWW ---------- #
 def logout():
     CURRENT_USER[0] = None
 
     for frame in (main_frame, add_frame, view_frame, edit_frame, mfa_frame, details_frame):
         frame.pack_forget()
 
-    # Clear MFA frame contents
     for widget in mfa_frame.winfo_children():
         widget.destroy()
 
-    build_login_ui()  # ← Rebuild the login screen
+    build_login_ui()
     login_frame.pack(fill="both", expand=True, padx=20, pady=20)
-
-
-
-
-
-
 
 # --- VALIDATION FUNCTIONS --- #
 def validate_username(username):
@@ -283,13 +291,10 @@ def validate_password(password, username):
         return False, "Password must not contain your username."
     return True, ""
 
-
-
 def check_login():
     username = login_user_entry.get().strip()
     password = login_pass_entry.get().strip()
 
-    # Validate username length
     if not (6 <= len(username) <= 20):
         login_error.configure(text="Username must be between 6 and 20 characters.")
         return
@@ -298,12 +303,11 @@ def check_login():
         with open(USER_CREDENTIALS_FILE, "r") as f:
             for line in f:
                 if not line.strip() or "," not in line:
-                    continue  # skip empty or malformed lines
+                    continue 
 
                 saved_user, saved_pass = line.strip().split(",")
 
                 if saved_user == username and saved_pass == password:
-                    # Initialize user files if they don't exist
                     files = get_user_files(username)
                     if not os.path.exists(files['CREDENTIALS_FILE']):
                         open(files['CREDENTIALS_FILE'], 'w').close()
@@ -326,19 +330,16 @@ def check_login():
 
     login_error.configure(text="Invalid credentials.")
 
-
 def register_user():
     username = reg_user_entry.get().strip()
     password = reg_pass_entry.get().strip()
     confirm = reg_confirm_entry.get().strip()
 
-    # Validate username
     username_valid, username_error = validate_username(username)
     if not username_valid:
         reg_error.configure(text=username_error)
         return
 
-    # Validate password (pass username too!)
     password_valid, password_error = validate_password(password, username)
     if not password_valid:
         reg_error.configure(text=password_error)
@@ -356,35 +357,28 @@ def register_user():
                         reg_error.configure(text="Username already exists.")
                         return
         
-        # Create user-specific files
         files = get_user_files(username)
-        open(files['CREDENTIALS_FILE'], 'w').close()  # Create empty credentials file
-        generate_key(username)  # Generate encryption key for the user
+        open(files['CREDENTIALS_FILE'], 'w').close()
+        generate_key(username)
         
-        # Save user credentials
         with open(USER_CREDENTIALS_FILE, "a") as f:
             f.write(f"{username},{password}\n")
         
         CURRENT_USER[0] = username
         show_mfa_prompt_in_frame(username, register_frame, back_to_login)
 
-
-
-
 def show_mfa_prompt_in_frame(username, mfa_frame, on_success):
     for widget in mfa_frame.winfo_children():
         widget.forget()
     mfa_frame.configure(fg_color="white")
     
-    # Load the background image
     mfa_bg = ctk.CTkImage(
-        light_image=Image.open("PasswordManager\Image Files\MFA.png"),
+        light_image=Image.open("Image Files\MFA.jpeg"),
         size=(600, 750)
     )
     mfa_bg_label = ctk.CTkLabel(mfa_frame, image=mfa_bg, text="")
     mfa_bg_label.place(relx=0.5, rely=0.5, anchor="center")  
 
-    # Predefined list of questions
     predefined_questions = [
         "What is your childhood nickname?",
         "What was the first dish you \n learned how to cook?",
@@ -396,29 +390,22 @@ def show_mfa_prompt_in_frame(username, mfa_frame, on_success):
     border_frame = ctk.CTkFrame(mfa_frame, fg_color="black")
     border_frame.place(relx=0.5, rely=0.55, anchor="center")
 
-# Dropdown for question inside the border frame with padding for border effect
     question_dropdown = ctk.CTkOptionMenu(border_frame, values=predefined_questions,
                                       fg_color="white", button_color="white", button_hover_color="#FEF5F5",
                                       text_color="black", dropdown_fg_color="white", dropdown_text_color="black",
                                       width=275, height=55, corner_radius=70, 
                                       font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=18, weight="bold"))
     question_dropdown.set("Select a question")
-
-# pack with padding to create the border effect
     question_dropdown.pack(padx=4, pady=4)
 
-# Answer entry
     answer_entry = ctk.CTkEntry(mfa_frame, placeholder_text="Enter Answer",
                             placeholder_text_color="#D9D9D9", fg_color="#FEFEFE", text_color="black", border_color="#D9D9D9",
                             width=300, height=50,
                             font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20))
     answer_entry.place(relx=0.5, rely=0.67, anchor="center")
 
-
-    # Error/success label
     mfa_error = ctk.CTkLabel(mfa_frame, text="", text_color="red")
     mfa_error.place(relx=0.5, rely=0.75, anchor="center", y=-10)
-
 
     def save_mfa():
         question = question_dropdown.get().strip()
@@ -434,19 +421,11 @@ def show_mfa_prompt_in_frame(username, mfa_frame, on_success):
         mfa_error.configure(text="MFA question set!", text_color="green")
         mfa_frame.after(1000, on_success)
 
-    # Save button
     mfa_save_btn = ctk.CTkButton(mfa_frame, text="SAVE", width=275, height=55,
                          font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20),
                          command=save_mfa, text_color="black", fg_color="transparent",
                          border_color="black", border_width=2, hover_color="#FEF5F5", corner_radius=50)
     mfa_save_btn.place(relx=0.5, rely=0.8, anchor="center")
-
-
-
-
-
-
-
 
 def show_mfa_verify_prompt_in_frame(username, parent_frame, on_success):
     for widget in parent_frame.winfo_children():
@@ -462,28 +441,24 @@ def show_mfa_verify_prompt_in_frame(username, parent_frame, on_success):
         question = f.readline().strip()
         correct_answer = f.readline().strip()
 
-    # Load the background image
     mfa_bg = ctk.CTkImage(
-        light_image=Image.open("PasswordManager\Image Files\MFA.png"),
+        light_image=Image.open("Image Files\MFA.jpeg"),
         size=(600, 750)
     )
     mfa_bg_label = ctk.CTkLabel(parent_frame, image=mfa_bg, text="")
     mfa_bg_label.place(relx=0.5, rely=0.5, anchor="center")
 
-    # The user's MFA question (bold)
     mfa_question = ctk.CTkLabel(parent_frame, text=question,
                                 font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=22, weight="bold"),
                                 text_color="black")
     mfa_question.place(relx=0.5, rely=0.51, anchor="center")
 
-    # Answer entry
     answer_entry = ctk.CTkEntry(parent_frame, placeholder_text="Enter Answer",
                                 placeholder_text_color="#D9D9D9", fg_color="#FEFEFE", text_color="black", border_color="#D9D9D9",
                                 width=300, height=50,
                                 font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20))
     answer_entry.place(relx=0.5, rely=0.58, anchor="center")
 
-    # Error label
     mfa_error = ctk.CTkLabel(parent_frame, text="", text_color="red")
     mfa_error.place(relx=0.5, rely=0.64, anchor="center")
 
@@ -498,23 +473,17 @@ def show_mfa_verify_prompt_in_frame(username, parent_frame, on_success):
     def go_back():
         back_to_login()
 
-    # LOGIN button
     login_btn = ctk.CTkButton(parent_frame, text="LOGIN", width=275, height=55,
                               font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20),
                               command=check_answer, text_color="black", fg_color="transparent",
                               border_color="black", border_width=2, hover_color="#FEF5F5", corner_radius=50)
     login_btn.place(relx=0.5, rely=0.7, anchor="center")
 
-    # GO BACK button
     mfa_back_btn = ctk.CTkButton(parent_frame, text="GO BACK", width=275, height=55,
                              font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20),
                              command=go_back, text_color="black", fg_color="transparent",
                              border_color="black", border_width=2, hover_color="#FEF5F5", corner_radius=50)
     mfa_back_btn.place(relx=0.5, rely=0.8, anchor="center")
-
-
-
-
 
 # ---------- SAVE & CLEAR ---------- #
 def save_credentials():
@@ -575,9 +544,7 @@ def clear_inputs():
     notes_title_entry.delete(0, ctk.END)
     notes_content.delete("1.0", ctk.END)
 
-
 # ---------- LOAD & DISPLAY CREDENTIALS ---------- #
-
 def parse_user_credentials(username):
     files = get_user_files(username)
     if not os.path.exists(files['CREDENTIALS_FILE']):
@@ -596,14 +563,8 @@ def parse_user_credentials(username):
             credentials_by_category[category].append(parts[1:])
     return credentials_by_category
 
-
-
-
-
 # ---------- EDIT PASSWORDS FUNCTIONALITY ---------- #
-
-# Flag to toggle password visibility
-show_passwords = False  # Flag for password visibility toggle
+show_passwords = False
 
 def toggle_password_visibility():
     global show_passwords, visibility_switch
@@ -621,12 +582,8 @@ def toggle_password_visibility():
             show_passwords = False
             visibility_switch.deselect()
             load_credentials()
-
-    # Use the centralized request_pin function to handle PIN prompt and registration if needed
     request_pin(on_pin_verified)
 
-
-# Assuming visibility_switch is created somewhere in your UI setup code:
 visibility_switch = ctk.CTkSwitch(
     master=view_frame,
     text="Show Passwords",
@@ -634,15 +591,12 @@ visibility_switch = ctk.CTkSwitch(
 )
 visibility_switch.pack(pady=5)
 
-
-
 def load_credentials():
     global credentials_lines
     username = CURRENT_USER[0]
     files = get_user_files(username)
     credentials_lines = []
 
-    # Clear previous entries from the display area
     for widget in view_frame.winfo_children():
         widget.forget()
 
@@ -652,7 +606,7 @@ def load_credentials():
     with open(files['CREDENTIALS_FILE'], 'r') as f:
         lines = [line.strip() for line in f if line.strip()]
 
-    credentials_lines = lines  # keep this up to date
+    credentials_lines = lines
 
     for idx, line in enumerate(lines):
         parts = line.split("|")
@@ -674,19 +628,15 @@ def load_credentials():
                                      command=lambda i=idx, p=parts, c=category: show_credential_details(i, p, c, credentials_lines))
         entry_button.pack(fill="x", padx=10, pady=5)
 
-
-
-# FUNCTION
 def edit_credential_in_page(parts, original_line):
     global credentials_lines
     username = CURRENT_USER[0]
     files = get_user_files(username)
-    # Load all credentials from file before editing
+
     if os.path.exists(files['CREDENTIALS_FILE']):
         with open(files['CREDENTIALS_FILE'], 'r') as f:
             credentials_lines = [line.strip() for line in f if line.strip()]
 
-    # Require PIN verification before editing
     def on_pin_verified(success):
         if not success:
             messagebox.showerror("Error", "PIN verification failed. Cannot edit credential.")
@@ -711,15 +661,12 @@ def edit_credential_in_page(parts, original_line):
 
     request_pin(on_pin_verified)
 
-
 def write_credentials_file():
     username = CURRENT_USER[0]
     files = get_user_files(username)
     with open(files['CREDENTIALS_FILE'], "w") as f:
         for line in credentials_lines:
             f.write(f"{line}\n")
-
-
 
 def update_credentials_file():
     global credentials_lines
@@ -728,9 +675,6 @@ def update_credentials_file():
     with open(files['CREDENTIALS_FILE'], "w") as f:
         for line in credentials_lines:
             f.write(line + "\n")
-
-
-
 
 def get_login_count(username):
     files = get_user_files(username)
@@ -751,59 +695,45 @@ def increment_login_count(username):
         f.write(str(count))
     return count
 
-
-
-
 # ---------- START THE APP ---------- #
-# Define show_login before using it in the button
-
 def show_login():
     opening_frame.pack_forget()
     login_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-# Load the background image
 opening_bg = ctk.CTkImage(
-    light_image=Image.open("PasswordManager\Image Files\Welcome-Page.png"),
+    light_image=Image.open("Image Files\Welcome-Page.png"),
     size=(600, 750)
 )
 
-# Create and place the background label (must be added first to appear behind other widgets)
 opening_bg_label = ctk.CTkLabel(opening_frame, image=opening_bg, text="")
-opening_bg_label.place(relx=0.5, rely=0.5, anchor="center")  # Centered and fills the frame
+opening_bg_label.place(relx=0.5, rely=0.5, anchor="center")
 
-# "Get Started!" button
 get_started_btn = ctk.CTkButton(opening_frame, text="Get Started!", width=300, height=60,
     font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20, weight="bold"),
     command=lambda: on_button_click(), text_color="black", fg_color="white",
     border_color="black", border_width=2, hover_color="#FEF5F5", corner_radius=50)
 get_started_btn.place(relx=0.5, rely=0.8, anchor="center")
 
-
-# Show the opening frame
 opening_frame.pack(fill="both", expand=True, padx=20, pady=20)
-
-
 
 # ---------- LOGIN PAGE ---------- #
 for widget in login_frame.winfo_children():
     widget.destroy()
 
-# Load the background image
 login_bg = ctk.CTkImage(
-    light_image=Image.open("PasswordManager\Image Files\LogIn-Page.png"),
+    light_image=Image.open("Image Files\LogIn-Page.png"),
     size=(600, 750)
 )
 
 login_bg_label = ctk.CTkLabel(login_frame, image=login_bg, text="")
 login_bg_label.place(relx=0.5, rely=0.5, anchor="center")  
 
-# Username and password entries
 login_user_entry = ctk.CTkEntry(login_frame, placeholder_text="Username", placeholder_text_color="#D9D9D9", fg_color="#FEFEFE", text_color="black", border_color="#D9D9D9", width=300, height=50, font=ctk.CTkFont(size=20))
-login_user_entry.place(relx=0.5, rely=0.43, anchor="center")  # adjust relx/rely
+login_user_entry.place(relx=0.5, rely=0.43, anchor="center")
 login_frame.configure(fg_color="#FEFEFE")
 
 login_pass_frame = ctk.CTkFrame(login_frame, fg_color="transparent")
-login_pass_frame.place(relx=0.52, rely=0.55, anchor="center")  # adjust as needed
+login_pass_frame.place(relx=0.52, rely=0.55, anchor="center")
 login_pass_entry = ctk.CTkEntry(login_pass_frame, placeholder_text="Password", show="*", placeholder_text_color="#D9D9D9", fg_color="#FEFEFE", text_color="black", border_color="#D9D9D9", width=255, height=40, font=ctk.CTkFont(size=20))
 login_pass_entry.pack(side="left", ipadx=4, ipady=4)
 
@@ -852,28 +782,22 @@ register_link = ctk.CTkButton(login_frame, text="DON'T HAVE ACCOUNT?", width=300
     border_color="black", border_width=2, hover_color="#FEF5F5", corner_radius=50)
 register_link.place(relx=0.5, rely=0.84, anchor="center")
 
-
-# LOGIN UI TO RAISE
 def build_login_ui():
     global login_user_entry, login_pass_entry, login_error, login_eye_btn, login_pw_visible
 
-    # Clear existing widgets
     for widget in login_frame.winfo_children():
         widget.destroy()
 
-    # Load background image
     login_bg = ctk.CTkImage(
-        light_image=Image.open("PasswordManager\Image Files\LogIn-Page.png"),
+        light_image=Image.open("Image Files\LogIn-Page.png"),
         size=(600, 750)
     )
     login_bg_label = ctk.CTkLabel(login_frame, image=login_bg, text="")
-    login_bg_label.image = login_bg  # prevent garbage collection
+    login_bg_label.image = login_bg 
     login_bg_label.place(relx=0.5, rely=0.5, anchor="center")
 
-    # Configure background
     login_frame.configure(fg_color="#FEFEFE")
 
-    # Username entry
     login_user_entry = ctk.CTkEntry(
         login_frame, placeholder_text="Username", placeholder_text_color="#D9D9D9",
         fg_color="#FEFEFE", text_color="black", border_color="#D9D9D9",
@@ -881,7 +805,6 @@ def build_login_ui():
     )
     login_user_entry.place(relx=0.5, rely=0.43, anchor="center")
 
-    # Password entry with toggle button
     login_pass_frame = ctk.CTkFrame(login_frame, fg_color="transparent")
     login_pass_frame.place(relx=0.52, rely=0.55, anchor="center")
 
@@ -918,11 +841,9 @@ def build_login_ui():
     login_eye_btn.bind("<Leave>", lambda e: login_eye_btn.configure(text_color="#D9D9D9") if not login_pw_visible[0] else None)
     login_eye_btn.pack(side="left", padx=0)
 
-    # Error label
     login_error = ctk.CTkLabel(login_frame, text="", text_color="red")
     login_error.place(relx=0.48, rely=0.65, anchor="center")
 
-    # Login button
     login_button = ctk.CTkButton(
         login_frame, text="LOG IN", width=300, height=60,
         font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20),
@@ -931,7 +852,6 @@ def build_login_ui():
     )
     login_button.place(relx=0.5, rely=0.73, anchor="center")
 
-    # Register button
     register_link = ctk.CTkButton(
         login_frame, text="DON'T HAVE ACCOUNT?", width=300, height=60,
         font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20),
@@ -940,7 +860,6 @@ def build_login_ui():
     )
     register_link.place(relx=0.5, rely=0.84, anchor="center")
 
-    # Forgot Password Button
     forgot_password_btn = ctk.CTkButton(
         login_frame,
         text="Forgot Password?",
@@ -953,10 +872,6 @@ def build_login_ui():
     )
     forgot_password_btn.place(relx=0.5, rely=0.62, anchor="center")
 
-
-# FORGOT PASSWORD
-
-# Forgot Password Window
 def show_new_password_window(username, on_password_confirmed):
     window = ctk.CTkToplevel()
     window.title("Set New Password")
@@ -964,14 +879,12 @@ def show_new_password_window(username, on_password_confirmed):
     window.resizable(False, False)
     window.configure(fg_color="white")
 
-    # --- Add Logo ---
-    okdkey_img = ctk.CTkImage(light_image=Image.open("PasswordManager\Image Files\Logo.png"), size=(150, 150))
+    okdkey_img = ctk.CTkImage(light_image=Image.open("Image Files\Logo.png"), size=(150, 150))
     okdkey_logo_label = ctk.CTkLabel(window, image=okdkey_img, text="")
     okdkey_logo_label.place(relx=0.5, rely=0.1, anchor="center")
 
     pw_visible = [False]
 
-    # --- Password Requirements ---
     req_frame = ctk.CTkFrame(window, fg_color="white")
     req_frame.place(relx=0.5, rely=0.62, anchor="center")
     req_font = ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=12)
@@ -982,7 +895,6 @@ def show_new_password_window(username, on_password_confirmed):
     for label in [length_req, name_req, upper_req, number_req, special_req]:
         label.pack(anchor="w", pady=1)
 
-    # --- New Password Entry + Eye ---
     new_pw_frame = ctk.CTkFrame(window, fg_color="white", width=300, height=50)
     new_pw_frame.place(relx=0.5, rely=0.32, anchor="center")
     new_pw_entry = ctk.CTkEntry(
@@ -1001,7 +913,6 @@ def show_new_password_window(username, on_password_confirmed):
     )
     new_pw_entry.pack(side="left")
 
-    # --- Confirm Password Entry + Eye ---
     confirm_pw_frame = ctk.CTkFrame(window, fg_color="white", width=300, height=50)
     confirm_pw_frame.place(relx=0.5, rely=0.42, anchor="center")
     confirm_pw_entry = ctk.CTkEntry(
@@ -1047,7 +958,6 @@ def show_new_password_window(username, on_password_confirmed):
     )
     confirm_eye_btn.pack(side="left", padx=0)
 
-    # --- Dynamic password validation ---
     def update_password_requirements(event=None):
         password = new_pw_entry.get()
         unmet = 0
@@ -1084,11 +994,9 @@ def show_new_password_window(username, on_password_confirmed):
 
     new_pw_entry.bind("<KeyRelease>", update_password_requirements)
 
-    # --- Error message label ---
     msg_label = ctk.CTkLabel(window, text="", text_color="red")
     msg_label.place(relx=0.5, rely=0.7, anchor="center")
 
-    # --- Submission ---
     def reset_password():
         new_pw = new_pw_entry.get().strip()
         confirm_pw = confirm_pw_entry.get().strip()
@@ -1099,7 +1007,7 @@ def show_new_password_window(username, on_password_confirmed):
         if new_pw != confirm_pw:
             msg_label.configure(text="Passwords do not match.")
             return
-        if req_frame.winfo_ismapped():  # Requirements not met
+        if req_frame.winfo_ismapped():
             msg_label.configure(text="Password does not meet all requirements.")
             return
         window.destroy()
@@ -1121,8 +1029,6 @@ def show_new_password_window(username, on_password_confirmed):
     )
     submit_btn.place(relx=0.5, rely=0.85, anchor="center")
 
-
-# Window Pop Up Messages
 def show_message_window(msg):
     popup = ctk.CTkToplevel()
     popup.title("Error")
@@ -1143,12 +1049,10 @@ def show_error_and_return_to_login(msg):
 
     def close_popup_and_return():
         popup.destroy()
-        build_login_ui()  # Rebuild login UI instead of tkraise()
+        build_login_ui() 
 
     popup.after(1500, close_popup_and_return)
 
-
-# Forgot Password Flow
 def start_forgot_password_flow(username):
     if not username:
         show_message_window("Enter username!")
@@ -1171,8 +1075,6 @@ def start_forgot_password_flow(username):
 
     show_new_password_window(username, on_new_password_confirmed)
 
-
-# Update File of the New Password
 def update_password_file(username, new_password):
     updated = False
     with open(USER_CREDENTIALS_FILE, "r") as f:
@@ -1193,8 +1095,6 @@ def update_password_file(username, new_password):
             else:
                 f.write(f"{user},{pwd}\n")
 
-
-# Forgot Password Button
 forgot_password_btn = ctk.CTkButton(
     login_frame,
     text="Forgot Password?",
@@ -1207,7 +1107,6 @@ forgot_password_btn = ctk.CTkButton(
 )
 forgot_password_btn.place(relx=0.5, rely=0.62, anchor="center")
 
-# Forgot Password MFA 
 def forget_password_mfa_prompt(username, parent_frame, on_success):
     for widget in parent_frame.winfo_children():
         widget.destroy()
@@ -1222,28 +1121,24 @@ def forget_password_mfa_prompt(username, parent_frame, on_success):
         question = f.readline().strip()
         correct_answer = f.readline().strip()
 
-    # Load the background image
     mfa_bg = ctk.CTkImage(
-        light_image=Image.open("PasswordManager\Image Files\MFA.png"),
+        light_image=Image.open("Image Files\MFA.jpeg"),
         size=(600, 750)
     )
     mfa_bg_label = ctk.CTkLabel(parent_frame, image=mfa_bg, text="")
     mfa_bg_label.place(relx=0.5, rely=0.5, anchor="center")
 
-    # The user's MFA question (bold)
     mfa_question = ctk.CTkLabel(parent_frame, text=question,
                                 font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=22, weight="bold"),
                                 text_color="black")
     mfa_question.place(relx=0.5, rely=0.51, anchor="center")
 
-    # Answer entry
     answer_entry = ctk.CTkEntry(parent_frame, placeholder_text="Enter Answer",
                                 placeholder_text_color="#D9D9D9", fg_color="#FEFEFE", text_color="black", border_color="#D9D9D9",
                                 width=300, height=50,
                                 font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20))
     answer_entry.place(relx=0.5, rely=0.58, anchor="center")
 
-    # Error label
     mfa_error = ctk.CTkLabel(parent_frame, text="", text_color="red")
     mfa_error.place(relx=0.5, rely=0.64, anchor="center")
 
@@ -1253,43 +1148,32 @@ def forget_password_mfa_prompt(username, parent_frame, on_success):
             mfa_error.configure(text="Correct!", text_color="green")
             parent_frame.after(500, on_success)
         else:
-        # Show error window and return to login frame
             def show_invalid_mfa_and_return():
                 show_message_window("Invalid MFA")
                 build_login_ui
 
             parent_frame.after(500, show_invalid_mfa_and_return)
 
-
-    # NEXT button
     fpass_next_btn = ctk.CTkButton(parent_frame, text="NEXT", width=275, height=55,
                               font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20),
                               command=check_answer, text_color="black", fg_color="transparent",
                               border_color="black", border_width=2, hover_color="#FEF5F5", corner_radius=50)
     fpass_next_btn.place(relx=0.5, rely=0.7, anchor="center")
 
-
-
-
-
-
 # ---------- REGISTER PAGE ---------- #
 for widget in register_frame.winfo_children():
     widget.destroy()
 
-# Load the background image
 register_bg = ctk.CTkImage(
-    light_image=Image.open("PasswordManager\Image Files\Register Page (1).png"),
+    light_image=Image.open("Image Files\Register Page (1).jpeg"),
     size=(600, 750)
 )
 register_bg_label = ctk.CTkLabel(register_frame, image=register_bg, text="")
 register_bg_label.place(relx=0.5, rely=0.5, anchor="center")  
 
-# Create a form_frame to hold all registration widgets
 form_frame = ctk.CTkFrame(register_frame, fg_color="transparent")
-form_frame.place(relx=0.5, rely=0.275, anchor="n")  # Adjust rely as needed for vertical centering
+form_frame.place(relx=0.5, rely=0.275, anchor="n")
 
-# Username (Registration)
 reg_user_entry = ctk.CTkEntry(
     form_frame,
     placeholder_text="Username",
@@ -1305,7 +1189,6 @@ reg_user_entry = ctk.CTkEntry(
 )
 reg_user_entry.pack(pady=8)
 
-# Password (Registration)
 reg_pass_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
 reg_pass_frame.pack(pady=0)
 reg_pass_entry = ctk.CTkEntry(
@@ -1322,6 +1205,7 @@ reg_pass_entry = ctk.CTkEntry(
     height=40,
     font=ctk.CTkFont(size=18)
 )
+
 reg_pass_entry.pack(side="left", pady=8)
 reg_pw_visible = [False]
 
@@ -1344,10 +1228,8 @@ reg_eye_btn = ctk.CTkButton(
     hover_color="#FEFEFE",
     command=toggle_reg_pw
 )
+
 reg_eye_btn.pack(side="left", padx=0)
-
-
-
 
 def generate_password(length=12):
     chars = string.ascii_letters + string.digits + "!@#$%^&*()_+-=[]{}|;:,.<>?"
@@ -1366,8 +1248,7 @@ def fill_generated_password():
     reg_confirm_entry.insert(0, pw)
     update_password_requirements()
 
-# Load the generate password icon as a CTkImage
-generate_pass_img = ctk.CTkImage(light_image=Image.open("PasswordManager\Image Files\Generate-Pass-Icon.png"), size=(32, 32))
+generate_pass_img = ctk.CTkImage(light_image=Image.open("Image Files\Generate-Pass-Icon.png"), size=(32, 32))
 
 gen_pw_btn = ctk.CTkButton(
     reg_pass_frame,
@@ -1384,12 +1265,9 @@ gen_pw_btn = ctk.CTkButton(
 )
 gen_pw_btn.pack(side="left", padx=6)
 
-
-# Inner frame containing all requirement labels (pack/unpack happens here)
 req_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
 req_frame.pack(anchor="w", pady=(0, 8))
 
-# Your existing labels inside req_frame
 length_req = ctk.CTkLabel(req_frame, text="• 6-20 characters", text_color="gray", font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=12))
 length_req.pack(anchor="w", pady=1)
 
@@ -1405,41 +1283,40 @@ number_req.pack(anchor="w", pady=1)
 special_req = ctk.CTkLabel(req_frame, text="• One special character", text_color="gray", font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=12))
 special_req.pack(anchor="w", pady=1)
 
-# Your existing update_password_requirements function remains unchanged
 def update_password_requirements(event=None):
     password = reg_pass_entry.get()
     unmet = 0
-    # Update length requirement
+
     if 6 <= len(password) <= 20:
         length_req.pack_forget()
     else:
         length_req.pack(anchor="w", pady=1)
         unmet += 1
-    # Update uppercase requirement
+
     if any(c.isupper() for c in password):
         upper_req.pack_forget()
     else:
         upper_req.pack(anchor="w", pady=1)
         unmet += 1
-    # Update number requirement
+
     if any(c.isdigit() for c in password):
         number_req.pack_forget()
     else:
         number_req.pack(anchor="w", pady=1)
         unmet += 1
-    # Update special character requirement
+
     if any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password):
         special_req.pack_forget()
     else:
         special_req.pack(anchor="w", pady=1)
         unmet += 1
-    # Always keep the requirements frame packed
+
     if not req_frame.winfo_ismapped():
         req_frame.pack(anchor="w", pady=(0, 8))
-    # Move Confirm Password field up as requirements are fulfilled
+
     total_reqs = 4
-    min_rely = 0.90  # Closest to password (just below password)
-    max_rely = 0.67  # Farthest (final/original position)
+    min_rely = 0.90 
+    max_rely = 0.67 
     rely = min_rely + (max_rely - min_rely) * (unmet / total_reqs)
 
 reg_pass_entry.bind('<KeyRelease>', update_password_requirements)
@@ -1463,11 +1340,9 @@ reg_confirm_entry.pack(pady=8, ipadx=4, ipady=4)
 reg_error = ctk.CTkLabel(form_frame, text="", text_color="red")
 reg_error.pack(pady=(0, 5))
 
-# Create a button frame at the bottom of the register_frame
 button_frame = ctk.CTkFrame(register_frame, fg_color="transparent")
-button_frame.place(relx=0.5, rely=1.0, anchor="s", relwidth=0.7, y=-35)  # y=-60 moves it higher
+button_frame.place(relx=0.5, rely=1.0, anchor="s", relwidth=0.7, y=-35)
 
-# Sign up button
 reg_button = ctk.CTkButton(
     button_frame,
     text="SIGN UP",
@@ -1476,15 +1351,14 @@ reg_button = ctk.CTkButton(
     font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20),
     command=register_user,
     text_color="black",
-    fg_color="transparent",         # Light pink/white
+    fg_color="transparent",         
     border_color="black",
     border_width=2,
-    hover_color="#FFF6FA",      # Slightly lighter on hover
+    hover_color="#FFF6FA",      
     corner_radius=50
 )
 reg_button.pack(pady=(0, 10))
 
-# Back to login button
 back_login_btn = ctk.CTkButton(
     button_frame,
     text="BACK TO LOGIN",
@@ -1501,22 +1375,16 @@ back_login_btn = ctk.CTkButton(
 )
 back_login_btn.pack(pady=(0, 10))
 
-
-
-
 # ---------- MAIN FRAME ----------
-# Background image
 main_bg = ctk.CTkImage(
-    light_image=Image.open("PasswordManager\Image Files\Main-Page.png"),
+    light_image=Image.open("Image Files\Main-Page.png"),
     size=(600, 750)
 )
 main_bg_label = ctk.CTkLabel(main_frame, image=main_bg, text="")
 main_bg_label.place(relx=0.5, rely=0.5, anchor="center")  
 
-
-# Outer frame as black border with rounded corners
 border_frame = ctk.CTkFrame(main_frame, fg_color="black", corner_radius=50)
-border_frame.place(relx=0.27, rely=0.36, anchor="center")  # moved down from 0.26 to 0.36
+border_frame.place(relx=0.27, rely=0.36, anchor="center")
 
 vault_filter = ctk.CTkOptionMenu(
     border_frame,
@@ -1540,27 +1408,24 @@ add_pass_btn = ctk.CTkButton(
     text="+ Add Password",
     width=200,
     height=50,
-    fg_color="#ff94c2",        # lighter pink
-    hover_color="#ff6fa1",     # darker pink when hovered
+    fg_color="#ff94c2",        
+    hover_color="#ff6fa1",    
     text_color="#222",
     font=ctk.CTkFont("Arial", size=20, weight="bold"),
     corner_radius=20,
-    border_color="black",     # black border
-    border_width=5,           # thickness of the border
+    border_color="black",    
+    border_width=5,           
     command=show_add_password
 )
-add_pass_btn.place(relx=0.75, rely=0.36, anchor="center")  # moved down from 0.26 to 0.36
+add_pass_btn.place(relx=0.75, rely=0.36, anchor="center")  
 
 # ---------- CREDENTIAL CONTAINER ----------
 credentials_container = ctk.CTkFrame(main_frame, fg_color="#ffffff")
-credentials_container.place(relx=0.5, rely=0.72, anchor="center", relwidth=0.9, relheight=0.6)  # moved down from 0.62 to 0.72
+credentials_container.place(relx=0.5, rely=0.72, anchor="center", relwidth=0.9, relheight=0.6)  
 
-# Load icons
-asterisk_icon = ctk.CTkImage(light_image=Image.open("PasswordManager\Image Files\icon1.png"), size=(40, 40))
-card_icon = ctk.CTkImage(light_image=Image.open("PasswordManager\Image Files\icon2.png"), size=(45, 40))
-note_icon = ctk.CTkImage(light_image=Image.open("PasswordManager\Image Files\icon3.png"), size=(40, 40))
-
-# Update credential cards
+asterisk_icon = ctk.CTkImage(light_image=Image.open("Image Files\icon1.png"), size=(40, 40))
+card_icon = ctk.CTkImage(light_image=Image.open("Image Files\icon2.png"), size=(45, 40))
+note_icon = ctk.CTkImage(light_image=Image.open("Image Files\icon3.png"), size=(40, 40))
 
 def refresh_main_credentials():
     for widget in credentials_container.winfo_children():
@@ -1585,12 +1450,12 @@ def refresh_main_credentials():
         category = parts[0]
         if selected_category != "All Vaults" and selected_category != category:
             continue
-        # Card style: white, rounded, border
+
         card = ctk.CTkFrame(credentials_container, fg_color="white", corner_radius=14, border_width=2, border_color="#bbb")
         card.pack(fill="x", pady=8, padx=2)
         card.pack_propagate(False)
         card.configure(height=70)
-        # Info text and icon
+
         if category == "Login":
             entry_type, email, _ = parts[1:]
             title = entry_type
@@ -1609,7 +1474,7 @@ def refresh_main_credentials():
             title = category
             subtitle = ""
             icon = ""
-        # Layout: left info, right icon
+
         left = ctk.CTkFrame(card, fg_color="transparent")
         left.pack(side="left", fill="both", expand=True, padx=16, pady=8)
         title_label = ctk.CTkLabel(left, text=title, font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=16, weight="bold"), text_color="#111")
@@ -1618,22 +1483,20 @@ def refresh_main_credentials():
         subtitle_label.pack(anchor="w")
         icon_label = ctk.CTkLabel(card, image=icon, text="", fg_color="transparent")
         icon_label.pack(side="right", padx=18)
-        # Make the whole card clickable
+
         card.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
         left.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
         title_label.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
         subtitle_label.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
         icon_label.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
 
-# Update vault filter to refresh on change
         vault_filter.configure(command=lambda x: refresh_main_credentials())
 
 # ---------- LOGOUT BUTTON ----------
 logout_btn_frame = ctk.CTkFrame(main_frame, fg_color="#FFFFFF", width=100, height=70)
 logout_btn_frame.place(relx=.97, rely=1, anchor="se", x=-10, y=-10)
 
-# Load the logout button image
-logout_img = ctk.CTkImage(Image.open("PasswordManager/Image Files/logoutbtn.png"), size=(41, 43))
+logout_img = ctk.CTkImage(Image.open("Image Files/logoutbtn.png"), size=(41, 43))
 
 logout_btn = ctk.CTkButton(
     logout_btn_frame,
@@ -1645,28 +1508,17 @@ logout_btn = ctk.CTkButton(
 )
 logout_btn.place(relx=1, rely=1, anchor="se", x=-10, y=-10)
 
-
-
-
-
-
-
-
 # ---------- ADD PASSWORD PAGE ---------- #
-# Background image
 add_bg = ctk.CTkImage(
-    light_image=Image.open("PasswordManager\Image Files\Add-Paswrod.png"),
+    light_image=Image.open("Image Files\Add-Paswrod.png"),
     size=(600, 750)
 )
 add_bg_label = ctk.CTkLabel(add_frame, image=add_bg, text="", fg_color="#FFFFFF")
 add_bg_label.place(relx=0.5, rely=0.5, anchor="center")
 
-
 fields_frame = ctk.CTkFrame(add_frame, fg_color="#FFFFFF", width=400, height=400)
 fields_frame.place(relx=0.5, rely=0.5, anchor="center")
 
-
-# Login fields
 login_fields = ctk.CTkFrame(fields_frame, fg_color="#FFFFFF")
 type_entry = ctk.CTkEntry(login_fields, placeholder_text="Type", fg_color="#f0f0f0", width=300, height=50, text_color="black", font=ctk.CTkFont(size=20))
 type_entry.pack(pady=(10,5), fill="x", padx=20)
@@ -1677,8 +1529,6 @@ email_entry.pack(pady=5, fill="x", padx=20)
 password_entry = ctk.CTkEntry(login_fields, placeholder_text="Password", show="*", fg_color="#f0f0f0", width=300, height=50, text_color="black", font=ctk.CTkFont(size=20))
 password_entry.pack(pady=5, fill="x", padx=20)
 
-
-# Credit Card fields
 card_fields = ctk.CTkFrame(fields_frame, fg_color="#FFFFFF")
 card_name_entry = ctk.CTkEntry(card_fields, placeholder_text="Name on Card", fg_color="#f0f0f0", width=300, height=45, text_color="black", font=ctk.CTkFont(size=20))
 card_name_entry.pack(pady=(10,5), fill="x", padx=20)
@@ -1698,7 +1548,6 @@ add_card_number_label.pack(pady=(10, 2))
 add_card_error_label = ctk.CTkLabel(card_fields, text="", text_color="red", fg_color="#FFFFFF")
 add_card_error_label.pack(pady=(2, 10))
 
-
 def update_add_card_type(event=None):
     number = card_number_entry.get()
     if number.startswith("4"):
@@ -1712,8 +1561,6 @@ def update_add_card_type(event=None):
 
 card_number_entry.bind('<KeyRelease>', update_add_card_type)
 
-
-# Notes fields
 notes_fields = ctk.CTkFrame(fields_frame, fg_color="#FFFFFF")
 notes_title_entry = ctk.CTkEntry(notes_fields, placeholder_text="Title", fg_color="#f0f0f0", width=300, height=45, text_color="black", font=ctk.CTkFont(size=20))
 notes_title_entry.pack(pady=(10, 5), fill="x", padx=20)
@@ -1721,8 +1568,6 @@ notes_title_entry.pack(pady=(10, 5), fill="x", padx=20)
 notes_content = ctk.CTkTextbox(notes_fields, width=400, height=180, text_color="black", fg_color="#f0f0f0")
 notes_content.pack(pady=(5, 15), padx=20)
 
-
-# Switch category logic
 def switch_category_fields(choice):
     login_fields.place_forget()
     card_fields.place_forget()
@@ -1734,7 +1579,6 @@ def switch_category_fields(choice):
     elif choice == "Notes":
         notes_fields.place(relx=0.5, rely=0.2, anchor="n")
 
-# Outer frame as black border with rounded corners
 category_border_frame = ctk.CTkFrame(fields_frame, fg_color="black", corner_radius=50)
 category_border_frame.place(relx=0.5, rely=0.05, anchor="n")
 
@@ -1755,7 +1599,6 @@ category_entry = ctk.CTkOptionMenu(
 )
 category_entry.set("Login")
 category_entry.pack(padx=8, pady=8)
-
 
 add_save_btn = ctk.CTkButton(
     fields_frame,
@@ -1789,31 +1632,20 @@ add_back_btn = ctk.CTkButton(
 )
 add_back_btn.place(relx=0.73, rely=0.92, anchor="center")
 
-
-
-
-
-
-
-
 # ---------- VIEW PASSWORD PAGE ---------- #
-# Background image // 
 detail_bg = ctk.CTkImage(
-    light_image=Image.open("PasswordManager\Image Files\View-Vault.png"),
+    light_image=Image.open("Image Files\View-Vault.png"),
     size=(600, 750)
 )
 detail_bg_label = ctk.CTkLabel(details_frame, image=detail_bg, text="", fg_color="#FFFFFF")
 detail_bg_label.place(relx=0.5, rely=0.5, anchor="center")
 
-# Show passwords toggle variable
 show_pw_var = ctk.BooleanVar(value=False)
 
-# fonts
 custom_font_large = ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=24, weight="bold")
 custom_font_medium = ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=20)
 custom_font_button = ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=18, weight="bold")
 
-# --- Title Label (e.g., Facebook.com) ---
 details_title_label = ctk.CTkLabel(
     details_frame,
     text="",
@@ -1822,7 +1654,6 @@ details_title_label = ctk.CTkLabel(
 )
 details_title_label.pack(pady=(170, 0))  
 
-# --- Subtitle Label (e.g., CREDENTIALS) ---
 details_subtitle_label = ctk.CTkLabel(
     details_frame,
     text="",
@@ -1831,7 +1662,6 @@ details_subtitle_label = ctk.CTkLabel(
 )
 details_subtitle_label.pack(pady=(5, 0))  
 
-# --- Black Box (Textbox) for Details ---
 details_text = ctk.CTkTextbox(
     details_frame,
     width=400,
@@ -1843,8 +1673,6 @@ details_text = ctk.CTkTextbox(
 )
 details_text.pack(pady=(50, 0))  
 
-
-# Password toggle switch with styling and PIN callback
 pw_toggle = ctk.CTkSwitch(
     details_frame,
     text="Show Passwords",
@@ -1853,9 +1681,6 @@ pw_toggle = ctk.CTkSwitch(
 )
 pw_toggle.place(relx=0.5, rely=0.7, anchor="center")
 
-
-
-# Button frame (for Edit & Delete)
 btn_frame = ctk.CTkFrame(details_frame, fg_color="transparent")
 btn_frame.place(relx=0.56, rely=0.8, anchor="center")
 
@@ -1879,7 +1704,6 @@ delete_btn = ctk.CTkButton(
 
 delete_btn.pack(side="left", padx=8)
 
-# Back button
 view_back_btn = ctk.CTkButton(
     details_frame, text="<", width=50, height=60,
     font=custom_font_button, text_color="black", fg_color="transparent",
@@ -1888,9 +1712,6 @@ view_back_btn = ctk.CTkButton(
 )
 view_back_btn.place(relx=0.2, rely=0.8, anchor="center")
 
-
-
-# Credential state
 current_cred = {'parts': None, 'category': None, 'idx': None, 'lines': None}
 
 def update_details_text():
@@ -1911,15 +1732,13 @@ def update_details_text():
 
     try:
         if category == "Login":
-            # --- Extract data ---
+
             entry_type, email, enc_password = parts[1:]
             password = decrypt_data(enc_password, username) if show_pw else ""
 
-            # --- Title & Subtitle ---
-            details_title_label.configure(text=entry_type)  # e.g., "Facebook.com"
+            details_title_label.configure(text=entry_type)
             details_subtitle_label.configure(text=category)
 
-            # --- Layout Format (Editable) ---
             display_text = (
                 "\n"
                 " Account:      " + entry_type + "\n"
@@ -1927,18 +1746,15 @@ def update_details_text():
                 " Password:   " + password + "\n"
             )
 
-            # ↓ You can customize the above label names (e.g., "Account") or change the spacing for alignment.
-
         elif category == "Credit Card":
-            # --- Extract data ---
+
             card_name, card_number, _, enc_cvv = parts[1:]
             cvv = decrypt_data(enc_cvv, username) if show_pw else "*"
 
-            # --- Title & Subtitle ---
-            details_title_label.configure(text=card_name)  # e.g., "Miliani Leopoldo"
+            details_title_label.configure(text=card_name)
             details_subtitle_label.configure(text="CREDIT CARD")
 
-            # --- Layout Format (Editable) ---
+
             display_text = (
                 "\n"
                 " Cardholder:     " +  card_name + "\n"
@@ -1946,25 +1762,19 @@ def update_details_text():
                 " CVV/Passkey:  " + cvv + "\n"
             )
 
-            # ↓ You can change "Cardholder", adjust spacing, or re-order the lines as needed.
-
         elif category == "Notes":
-            # --- Extract data ---
+
             title, enc_content = parts[1:]
             content = decrypt_data(enc_content, username) if show_pw else "*"
 
-            # --- Title & Subtitle ---
             details_title_label.configure(text=title)
             details_subtitle_label.configure(text="NOTES")
 
-            # --- Layout Format (Editable) ---
             display_text = (
                 "\n"
                 " Title          :  " + title + "\n"
                 " Content        :  " + content + "\n"
             )
-
-            # ↓ You can rename "Title"/"Content" or format it into multi-line if content is long.
 
         else:
             details_title_label.configure(text="Unknown")
@@ -1978,7 +1788,6 @@ def update_details_text():
 
     details_text.insert("1.0", display_text)
     details_text.configure(state="disabled")
-
 
 def on_pw_toggle():
     if show_pw_var.get():
@@ -1996,7 +1805,6 @@ def on_pw_toggle():
 
 pw_toggle.configure(command=on_pw_toggle)
 
-# Initialize display
 update_details_text()
 
 def format_credential(category, parts, username, masked=True, for_listbox=False):
@@ -2031,9 +1839,6 @@ def format_credential(category, parts, username, masked=True, for_listbox=False)
     except Exception:
         return "[Error decrypting]"
 
-
-
-# show credential details
 def show_credential_details(idx, parts, category, lines):
     current_cred['parts'] = parts
     current_cred['category'] = category
@@ -2067,7 +1872,6 @@ def show_credential_details(idx, parts, category, lines):
 
 
 def create_fields(parent):
-    # LOGIN FIELDS
     login_fields = ctk.CTkFrame(parent, fg_color="#FFFFFF")
     
     type_entry = ctk.CTkEntry(login_fields, placeholder_text="Type", fg_color="#f0f0f0", width=300, height=50,
@@ -2082,7 +1886,6 @@ def create_fields(parent):
                                    height=50, text_color="black", font=ctk.CTkFont(size=20))
     password_entry.pack(pady=5, fill="x", padx=20)
 
-    # CREDIT CARD FIELDS
     card_fields = ctk.CTkFrame(parent, fg_color="#FFFFFF")
 
     card_name_entry = ctk.CTkEntry(card_fields, placeholder_text="Name on Card", fg_color="#f0f0f0", width=300, height=45,
@@ -2101,7 +1904,6 @@ def create_fields(parent):
                                    text_color="black", font=ctk.CTkFont(size=20))
     card_cvv_entry.pack(pady=5, fill="x", padx=20)
 
-    # NOTES FIELDS
     notes_fields = ctk.CTkFrame(parent, fg_color="#FFFFFF")
 
     notes_title_entry = ctk.CTkEntry(notes_fields, placeholder_text="Title", fg_color="#f0f0f0", width=300, height=45,
@@ -2111,7 +1913,6 @@ def create_fields(parent):
     notes_content = ctk.CTkTextbox(notes_fields, width=400, height=180, text_color="black", fg_color="#f0f0f0")
     notes_content.pack(pady=(5, 15), padx=20)
 
-    # Return structured fields dictionary
     return {
         "login": {
             "frame": login_fields,
@@ -2132,7 +1933,6 @@ def create_fields(parent):
             "content": notes_content
         }
     }
-
 
 def prefill_fields(fields_dict, line):
     parts = line.strip().split('|')
@@ -2186,29 +1986,20 @@ def build_line_from_fields(fields_dict):
             fields_dict["notes"]["content"].get("1.0", "end").strip()
         ])
 
-
-
-
-
-
 def build_edit_page(edit_frame, selected_line, on_save_callback, on_back_callback):
-    # Clear previous widgets
     for widget in edit_frame.winfo_children():
         widget.destroy()
 
-    # Background image
-    edit_bg = ctk.CTkImage(light_image=Image.open("PasswordManager\Image Files\Edit-Password.png"), size=(600, 750))
+    edit_bg = ctk.CTkImage(light_image=Image.open("Image Files\Edit-Password.png"), size=(600, 750))
     edit_bg_label = ctk.CTkLabel(edit_frame, image=edit_bg, text="", fg_color="#FFFFFF")
     edit_bg_label.place(relx=0.5, rely=0.5, anchor="center")
 
-    # Container for all form widgets
     form_frame = ctk.CTkFrame(edit_frame, fg_color="transparent")
     form_frame.place(relx=0.5, rely=0.32, anchor="n")
 
     label_font = ctk.CTkFont(size=18, weight="bold")
     entry_font = ctk.CTkFont(size=20)
 
-    # Create widgets
     platform_label = ctk.CTkLabel(form_frame, text="Platform:", font=label_font, text_color="black")
     platform_entry = ctk.CTkEntry(form_frame, width=300, height=50, fg_color="#f0f0f0", text_color="black", font=entry_font)
 
@@ -2233,7 +2024,6 @@ def build_edit_page(edit_frame, selected_line, on_save_callback, on_back_callbac
     notes_label = ctk.CTkLabel(form_frame, text="Notes:", font=label_font, text_color="black")
     notes_textbox = ctk.CTkTextbox(form_frame, width=300, height=100, fg_color="#f0f0f0", text_color="black", font=ctk.CTkFont(size=18))
 
-    # Helper to clear all field widgets
     def clear_category_fields():
         for w in [
             platform_label, platform_entry,
@@ -2270,7 +2060,6 @@ def build_edit_page(edit_frame, selected_line, on_save_callback, on_back_callbac
             notes_label.pack(pady=(10, 0))
             notes_textbox.pack(pady=(0, 10))
 
-    # Category selector
     category_border_frame = ctk.CTkFrame(edit_frame, fg_color="black", corner_radius=50)
     category_border_frame.place(relx=0.5, rely=0.25, anchor="n")
 
@@ -2292,7 +2081,6 @@ def build_edit_page(edit_frame, selected_line, on_save_callback, on_back_callbac
     category_combobox.set("Login")
     category_combobox.pack(padx=8, pady=8)
 
-    # Pre-fill fields if editing
     parts = []
     if selected_line:
         username = CURRENT_USER[0]
@@ -2361,23 +2149,20 @@ def build_edit_page(edit_frame, selected_line, on_save_callback, on_back_callbac
         else:
             request_pin(on_pin_verified)
 
-    # Save/Cancel Buttons
-    btn_frame = ctk.CTkFrame(edit_frame, fg_color="transparent")  # or specify bg
-    btn_frame.pack(pady=(600, 0))  # Adjust pady to position the whole row
+    btn_frame = ctk.CTkFrame(edit_frame, fg_color="transparent")
+    btn_frame.pack(pady=(600, 0)) 
 
     save_btn = ctk.CTkButton(btn_frame, text="SAVE", width=130, height=50,
                          font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=18),
                          command=save_callback, text_color="black", fg_color="transparent",
                          border_color="black", border_width=2, hover_color="#FEF5F5", corner_radius=50)
-    save_btn.pack(side="left", padx=(0, 50))  # Add space between buttons
+    save_btn.pack(side="left", padx=(0, 50))  
 
     cancel_btn = ctk.CTkButton(btn_frame, text="CANCEL", width=130, height=50,
                            font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=18),
                            command=on_back_callback, text_color="black", fg_color="transparent",
                            border_color="black", border_width=2, hover_color="#FEF5F5", corner_radius=50)
     cancel_btn.pack(side="left")
-
-
 
     return {
         "category_combobox": category_combobox,
@@ -2392,14 +2177,12 @@ def build_edit_page(edit_frame, selected_line, on_save_callback, on_back_callbac
         "switch_category_fields": switch_category_fields,
     }
 
-
 def on_save(old_line, new_line):
     global credentials_lines
     try:
         idx = credentials_lines.index(old_line)
         credentials_lines[idx] = new_line
     except ValueError:
-        # If old_line not found, append new_line as new credential
         credentials_lines.append(new_line)
 
     update_credentials_file()
@@ -2408,15 +2191,14 @@ def on_save(old_line, new_line):
 
 def migrate_old_credentials_file(username):
     old_path = f"{username}_credentials.txt"
-    new_path = f"PasswordManager/Database/{username}_credentials.txt"
+    new_path = f"Database/{username}_credentials.txt"
     if os.path.exists(old_path) and not os.path.exists(new_path):
         os.makedirs(os.path.dirname(new_path), exist_ok=True)
         shutil.move(old_path, new_path)
 
-# --- SEARCH BAR (above All Vaults and Add Password) ---
 search_frame = ctk.CTkFrame(main_frame, fg_color="#FFFFFF")
-search_frame.place(relx=0.5, rely=0.25, anchor="center", relwidth=0.85)  # Removed height argument
-search_icon_img = ctk.CTkImage(Image.open("PasswordManager/Image Files/search_icon.png"), size=(24, 24))
+search_frame.place(relx=0.5, rely=0.25, anchor="center", relwidth=0.85) 
+search_icon_img = ctk.CTkImage(Image.open("Image Files/search_icon.png"), size=(24, 24))
 search_entry = ctk.CTkEntry(
     search_frame,
     placeholder_text="Search Vault",
@@ -2430,6 +2212,7 @@ search_entry = ctk.CTkEntry(
     width=420,
     height=44
 )
+
 search_entry.pack(side="left", fill="both", expand=True, padx=(8,0), pady=2)
 search_icon_label = ctk.CTkLabel(search_frame, image=search_icon_img, text="", fg_color="#FAFAFA")
 search_icon_label.pack(side="right", padx=(0,12), pady=2)
@@ -2466,26 +2249,22 @@ def search_credentials(event=None):
         if selected_category != "All Vaults" and selected_category != category:
             continue
             
-        # Get the name based on category
         if category == "Login":
-            name = parts[1]  # Platform/Type
+            name = parts[1] 
         elif category == "Credit Card":
-            name = parts[1]  # Card Name
+            name = parts[1]  
         elif category == "Notes":
-            name = parts[1]  # Note Title
+            name = parts[1]  
         else:
             continue
-            
-        # Only show if name matches search term
+
         if search_term in name.lower():
             found_any = True
-            # Card style: white, rounded, border
             card = ctk.CTkFrame(credentials_container, fg_color="white", corner_radius=14, border_width=2, border_color="#bbb")
             card.pack(fill="x", pady=8, padx=2)
             card.pack_propagate(False)
             card.configure(height=70)
             
-            # Info text and icon
             if category == "Login":
                 entry_type, email, _ = parts[1:]
                 title = entry_type
@@ -2505,7 +2284,6 @@ def search_credentials(event=None):
                 subtitle = ""
                 icon = ""
                 
-            # Layout: left info, right icon
             left = ctk.CTkFrame(card, fg_color="transparent")
             left.pack(side="left", fill="both", expand=True, padx=16, pady=8)
             title_label = ctk.CTkLabel(left, text=title, font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=16, weight="bold"), text_color="#111")
@@ -2515,7 +2293,6 @@ def search_credentials(event=None):
             icon_label = ctk.CTkLabel(card, image=icon, text="", fg_color="transparent")
             icon_label.pack(side="right", padx=18)
             
-            # Make the whole card clickable
             card.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
             left.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
             title_label.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
@@ -2526,10 +2303,8 @@ def search_credentials(event=None):
         no_label = ctk.CTkLabel(credentials_container, text="No matching credentials found.", text_color="gray", fg_color="transparent")
         no_label.pack(pady=10)
 
-# Bind search functionality to the search entry
 search_entry.bind('<KeyRelease>', search_credentials)
 
-# Update refresh_main_credentials to use search if there's a search term
 def refresh_main_credentials():
     if search_entry.get().strip():
         search_credentials()
@@ -2556,12 +2331,12 @@ def refresh_main_credentials():
             category = parts[0]
             if selected_category != "All Vaults" and selected_category != category:
                 continue
-            # Card style: white, rounded, border
+
             card = ctk.CTkFrame(credentials_container, fg_color="white", corner_radius=14, border_width=2, border_color="#bbb")
             card.pack(fill="x", pady=8, padx=2)
             card.pack_propagate(False)
             card.configure(height=70)
-            # Info text and icon
+
             if category == "Login":
                 entry_type, email, _ = parts[1:]
                 title = entry_type
@@ -2580,7 +2355,7 @@ def refresh_main_credentials():
                 title = category
                 subtitle = ""
                 icon = ""
-            # Layout: left info, right icon
+
             left = ctk.CTkFrame(card, fg_color="transparent")
             left.pack(side="left", fill="both", expand=True, padx=16, pady=8)
             title_label = ctk.CTkLabel(left, text=title, font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=16, weight="bold"), text_color="#111")
@@ -2589,14 +2364,13 @@ def refresh_main_credentials():
             subtitle_label.pack(anchor="w")
             icon_label = ctk.CTkLabel(card, image=icon, text="", fg_color="transparent")
             icon_label.pack(side="right", padx=18)
-            # Make the whole card clickable
+
             card.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
             left.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
             title_label.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
             subtitle_label.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
             icon_label.bind('<Button-1>', lambda e, idx=idx, parts=parts, category=category, lines=lines: show_credential_details(idx, parts, category, lines))
 
-# Update vault filter to refresh on change
 vault_filter.configure(command=lambda x: refresh_main_credentials())
 
 app.mainloop()
