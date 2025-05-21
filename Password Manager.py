@@ -373,7 +373,7 @@ def show_mfa_prompt_in_frame(username, mfa_frame, on_success):
     mfa_frame.configure(fg_color="white")
     
     mfa_bg = ctk.CTkImage(
-        light_image=Image.open("Image Files\MFA.jpeg"),
+        light_image=Image.open("Image Files\MFA.png"),
         size=(600, 750)
     )
     mfa_bg_label = ctk.CTkLabel(mfa_frame, image=mfa_bg, text="")
@@ -442,7 +442,7 @@ def show_mfa_verify_prompt_in_frame(username, parent_frame, on_success):
         correct_answer = f.readline().strip()
 
     mfa_bg = ctk.CTkImage(
-        light_image=Image.open("Image Files\MFA.jpeg"),
+        light_image=Image.open("Image Files\MFA.png"),
         size=(600, 750)
     )
     mfa_bg_label = ctk.CTkLabel(parent_frame, image=mfa_bg, text="")
@@ -892,7 +892,7 @@ def show_new_password_window(username, on_password_confirmed):
     upper_req = ctk.CTkLabel(req_frame, text="• One uppercase letter", text_color="gray", font=req_font)
     number_req = ctk.CTkLabel(req_frame, text="• One number", text_color="gray", font=req_font)
     special_req = ctk.CTkLabel(req_frame, text="• One special character", text_color="gray", font=req_font)
-    for label in [length_req, name_req, upper_req, number_req, special_req]:
+    for label in [length_req, upper_req, number_req, special_req]:
         label.pack(anchor="w", pady=1)
 
     new_pw_frame = ctk.CTkFrame(window, fg_color="white", width=300, height=50)
@@ -965,11 +965,6 @@ def show_new_password_window(username, on_password_confirmed):
             length_req.pack_forget()
         else:
             length_req.pack(anchor="w", pady=1)
-            unmet += 1
-        if username.lower() not in password.lower():
-            name_req.pack_forget()
-        else:
-            name_req.pack(anchor="w", pady=1)
             unmet += 1
         if any(c.isupper() for c in password):
             upper_req.pack_forget()
@@ -1122,7 +1117,7 @@ def forget_password_mfa_prompt(username, parent_frame, on_success):
         correct_answer = f.readline().strip()
 
     mfa_bg = ctk.CTkImage(
-        light_image=Image.open("Image Files\MFA.jpeg"),
+        light_image=Image.open("Image Files\MFA.png"),
         size=(600, 750)
     )
     mfa_bg_label = ctk.CTkLabel(parent_frame, image=mfa_bg, text="")
@@ -1165,7 +1160,7 @@ for widget in register_frame.winfo_children():
     widget.destroy()
 
 register_bg = ctk.CTkImage(
-    light_image=Image.open("Image Files\Register Page (1).jpeg"),
+    light_image=Image.open("Image Files\Register Page (1).png"),
     size=(600, 750)
 )
 register_bg_label = ctk.CTkLabel(register_frame, image=register_bg, text="")
@@ -1270,9 +1265,6 @@ req_frame.pack(anchor="w", pady=(0, 8))
 
 length_req = ctk.CTkLabel(req_frame, text="• 6-20 characters", text_color="gray", font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=12))
 length_req.pack(anchor="w", pady=1)
-
-name_req = ctk.CTkLabel(req_frame, text="• DO NOT contain username", text_color="gray", font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=12))
-name_req.pack(anchor="w", pady=1)
 
 upper_req = ctk.CTkLabel(req_frame, text="• One uppercase letter", text_color="gray", font=ctk.CTkFont(family="BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf", size=12))
 upper_req.pack(anchor="w", pady=1)
